@@ -1,6 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { 
+  FiPieChart, FiRadio, FiCpu, FiClipboard, FiBriefcase, FiUsers, 
+  FiZap, FiTerminal, FiMessageSquare, FiShield,
+  FiTarget, FiInbox, FiSearch, FiDollarSign, FiCalendar, FiSend, FiGlobe, FiMapPin, FiCheckCircle
+} from 'react-icons/fi';
 import { interviewCategories } from '../lib/interviewData';
 
 const companies = [
@@ -71,6 +76,11 @@ export default function Home() {
   const [timer, setTimer] = useState(1500); // 25 mins in seconds
   const [timerRunning, setTimerRunning] = useState(false);
   
+  const [radarJobs, setRadarJobs] = useState([]);
+  const [radarSource, setRadarSource] = useState('remotive');
+  const [isFetchingRadar, setIsFetchingRadar] = useState(false);
+  const [radarError, setRadarError] = useState('');
+
   const [jTitle, setJTitle] = useState('');
   const [jRole, setJRole] = useState('Frontend Developer');
   const [jSource, setJSource] = useState('LinkedIn');
@@ -122,6 +132,36 @@ export default function Home() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const fetchRadarJobs = async (source) => {
+    setIsFetchingRadar(true);
+    setRadarError('');
+    try {
+      const res = await fetch(`/api/radar?source=${source}`);
+      const data = await res.json();
+      if(data.error) throw new Error(data.error);
+      setRadarJobs(data.jobs || []);
+    } catch(err) {
+      setRadarError(err.message);
+    } finally {
+      setIsFetchingRadar(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'radar' && radarJobs.length === 0) {
+      fetchRadarJobs(radarSource);
+    }
+  }, [activeTab]);
+
+  const applyAndLog = async (job) => {
+    window.open(job.url, '_blank');
+    const newJob = { company: job.company, role: job.title, source: job.source.split(' ')[0], date: new Date().toISOString().split('T')[0], status: 'Applied' };
+    const res = await fetch('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newJob) });
+    const parsed = await res.json();
+    setJobs([parsed, ...jobs]);
+    alert('Started application! Job has been auto-logged to your tracker.');
   };
 
   const addJob = async () => {
@@ -226,15 +266,16 @@ export default function Home() {
       <div className="sidebar">
         <div className="logo">Job Hunt <span>HQ</span><br/><small style={{fontSize:'10px',color:'var(--muted)',fontWeight:400}}>Komal's Command Center</small></div>
         <div className="nav-items">
-          <NavItem id="dashboard" icon="📊" label="Dashboard" />
-          <NavItem id="ai" icon="🤖" label="AI Assistant" />
-          <NavItem id="tracker" icon="📋" label="Job Tracker" badge={jobs.length} />
-          <NavItem id="companies" icon="🏢" label="Companies" />
-          <NavItem id="recruiters" icon="🔍" label="Find Recruiters" />
-          <NavItem id="prep" icon="⚡" label="Interview Prep" />
-          <NavItem id="dsa" icon="🧮" label="DSA Tracker" />
-          <NavItem id="messages" icon="✉️" label="Message Templates" />
-          <NavItem id="gap" icon="🛡️" label="Gap Answers" />
+          <NavItem id="dashboard" icon={<FiPieChart/>} label="Dashboard" />
+          <NavItem id="radar" icon={<FiRadio/>} label="Live Radar" />
+          <NavItem id="ai" icon={<FiCpu/>} label="AI Assistant" />
+          <NavItem id="tracker" icon={<FiClipboard/>} label="Job Tracker" badge={jobs.length} />
+          <NavItem id="companies" icon={<FiBriefcase/>} label="Companies" />
+          <NavItem id="recruiters" icon={<FiUsers/>} label="Find Recruiters" />
+          <NavItem id="prep" icon={<FiZap/>} label="Interview Prep" />
+          <NavItem id="dsa" icon={<FiTerminal/>} label="DSA Tracker" />
+          <NavItem id="messages" icon={<FiMessageSquare/>} label="Message Templates" />
+          <NavItem id="gap" icon={<FiShield/>} label="Gap Answers" />
         </div>
         
         <div style={{marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--border)'}}>
@@ -334,10 +375,82 @@ export default function Home() {
           </div>
         )}
 
+        {activeTab === 'radar' && (
+          <div className="page active">
+            <div className="page-header">
+              <h1><FiRadio style={{display:'inline-block', verticalAlign:'middle', marginRight:'8px'}}/> Live Radar (Global)</h1>
+              <p>Fresh Frontend/React jobs posted recently. Click 'Apply + Track' to open the link AND save it to your Job Tracker instantly.</p>
+            </div>
+            
+            <div style={{display: 'flex', gap: '10px', marginBottom: '20px', padding: '4px', background: 'var(--surf)', borderRadius: '12px', width: 'max-content'}}>
+              <button 
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: radarSource === 'remotive' ? 'var(--violet)' : 'transparent',
+                  color: radarSource === 'remotive' ? '#fff' : 'var(--text)',
+                  border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px'
+                }}
+                onClick={() => { setRadarSource('remotive'); fetchRadarJobs('remotive'); }}
+              >
+                <FiGlobe /> Tech Startups (Remote)
+              </button>
+              <button 
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: radarSource === 'jsearch' ? 'var(--violet)' : 'transparent',
+                  color: radarSource === 'jsearch' ? '#fff' : 'var(--text)',
+                  border: 'none', padding: '10px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '13px'
+                }}
+                onClick={() => { setRadarSource('jsearch'); fetchRadarJobs('jsearch'); }}
+              >
+                <FiMapPin /> Indian Companies (Local)
+              </button>
+            </div>
+
+            {radarError && (
+              <div style={{background: 'rgba(255,107,107,0.1)', color: 'var(--red)', padding: '15px', borderRadius: '8px', marginBottom: '20px'}}>
+                <strong>Error fetching jobs:</strong> {radarError}
+                {radarError.includes('RAPIDAPI_KEY') && (
+                  <p style={{marginTop: '10px', fontSize: '13px', color: 'var(--text)'}}>
+                    To use JSearch, sign up at <strong>rapidapi.com</strong>, subscribe to the free 'JSearch' API, and add `RAPIDAPI_KEY=your_key` to your `.env.local` file, then restart the server.
+                  </p>
+                )}
+              </div>
+            )}
+
+            {isFetchingRadar ? (
+              <div style={{textAlign: 'center', padding: '40px', color: 'var(--muted)'}}><FiRadio style={{display:'inline-block', marginRight:'8px'}} /> Scanning job boards...</div>
+            ) : (
+              <div style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
+                {radarJobs.map((j, i) => (
+                  <div key={i} className="card" style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                    <div>
+                      <h3 style={{fontSize: '16px', marginBottom: '5px', color: 'var(--text)'}}>{j.title}</h3>
+                      <div style={{color: 'var(--teal)', fontSize: '13px', fontWeight: 500, marginBottom: '8px'}}>{j.company} • {j.location}</div>
+                      <div style={{display: 'flex', gap: '12px', fontSize: '12px', color: 'var(--dim)'}}>
+                        <span style={{display:'flex', alignItems:'center', gap:'4px'}}><FiDollarSign/> {j.salary}</span>
+                        <span style={{display:'flex', alignItems:'center', gap:'4px'}}><FiCalendar/> {j.date}</span>
+                        <span style={{display:'flex', alignItems:'center', gap:'4px'}}><FiSearch/> {j.source}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => applyAndLog(j)} 
+                      className="btn btn-primary"
+                      style={{display:'flex', alignItems:'center', gap:'8px'}}
+                    >
+                      <FiSend /> Apply + Track
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === 'ai' && (
           <div className="page active">
             <div className="page-header">
-              <h1>AI Cold Email / Cover Letter Generator</h1>
+              <h1><FiCpu style={{display:'inline-block', verticalAlign:'middle', marginRight:'8px'}}/> AI Cold Email / Cover Letter Generator</h1>
               <p>Powered by Google Gemini — Paste the Job Description below and let AI map it to your exact Avua.com experience.</p>
             </div>
             
@@ -359,9 +472,9 @@ export default function Home() {
                   className="btn btn-primary" 
                   onClick={generateAI} 
                   disabled={isGenerating}
-                  style={isGenerating ? {opacity: 0.7, cursor: 'not-allowed'} : {}}
+                  style={isGenerating ? {display:'flex', alignItems:'center', gap:'8px', opacity: 0.7, cursor: 'not-allowed'} : {display:'flex', alignItems:'center', gap:'8px'}}
                 >
-                  {isGenerating ? 'Generating...' : '✨ Generate with Gemini'}
+                  <FiZap /> {isGenerating ? 'Generating...' : 'Generate with Gemini'}
                 </button>
               </div>
             </div>
@@ -433,7 +546,7 @@ export default function Home() {
                   <thead><tr><th>#</th><th>Company</th><th>Role</th><th>Source</th><th>Applied</th><th>Status</th><th>Follow-up</th><th>Action</th></tr></thead>
                   <tbody>
                     {jobs.length === 0 ? (
-                      <tr><td colSpan="8"><div className="empty"><div className="empty-icon">📝</div>No applications yet. Add your first one above!</div></td></tr>
+                      <tr><td colSpan="8"><div className="empty"><div className="empty-icon"><FiClipboard /></div>No applications yet. Add your first one above!</div></td></tr>
                     ) : (
                       jobs.map((j, i) => {
                         const d = daysSince(j.date);
@@ -466,7 +579,7 @@ export default function Home() {
         {activeTab === 'companies' && (
           <div className="page active">
             <div className="page-header">
-              <h1>Target Companies</h1>
+              <h1><FiBriefcase style={{display:'inline-block', verticalAlign:'middle', marginRight:'8px'}}/> Target Companies</h1>
               <p>These companies hire React devs regularly. Start with top priority ones.</p>
             </div>
             <input className="search-box" placeholder="🔍  Search companies..." value={coSearch} onChange={(e) => setCoSearch(e.target.value)} />
@@ -479,8 +592,12 @@ export default function Home() {
                   </div>
                   <div className="co-tags">{c.tags.map(t => <span key={t} className="co-tag">{t}</span>)}</div>
                   <div className="co-links">
-                    <a className="co-link" href={`https://linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.search)}`} target="_blank" rel="noreferrer">🔍 Find recruiter</a>
-                    <a className="co-link" href={`https://${c.jobs}`} target="_blank" rel="noreferrer">💼 Jobs page</a>
+                    <a className="co-link" href={`https://linkedin.com/search/results/people/?keywords=${encodeURIComponent(c.search)}`} target="_blank" rel="noreferrer">
+                      <FiSearch style={{display:'inline-block', verticalAlign:'middle', marginRight:'4px'}}/> Find recruiter
+                    </a>
+                    <a className="co-link" href={`https://${c.jobs}`} target="_blank" rel="noreferrer">
+                      <FiBriefcase style={{display:'inline-block', verticalAlign:'middle', marginRight:'4px'}}/> Jobs page
+                    </a>
                   </div>
                 </div>
               ))}
