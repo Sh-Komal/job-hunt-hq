@@ -90,6 +90,7 @@ export default function Home() {
   const [rType, setRType] = useState('Recruiter');
   
   const [coSearch, setCoSearch] = useState('');
+  const [pendingJobCheck, setPendingJobCheck] = useState(null);
 
   useEffect(() => {
     fetch('/api/jobs').then(r => r.json()).then(data => {
@@ -155,13 +156,25 @@ export default function Home() {
     }
   }, [activeTab]);
 
-  const applyAndLog = async (job) => {
+  const handleApplyClick = (job) => {
     window.open(job.url, '_blank');
-    const newJob = { company: job.company, role: job.title, source: job.source.split(' ')[0], date: new Date().toISOString().split('T')[0], status: 'Applied' };
-    const res = await fetch('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newJob) });
-    const parsed = await res.json();
-    setJobs([parsed, ...jobs]);
-    alert('Started application! Job has been auto-logged to your tracker.');
+    setPendingJobCheck(job);
+  };
+
+  const confirmApplication = async (success) => {
+    if (success && pendingJobCheck) {
+      const job = pendingJobCheck;
+      const newJob = { company: job.company, role: job.title, source: job.source.split(' ')[0], date: new Date().toISOString().split('T')[0], status: 'Applied' };
+      const res = await fetch('/api/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newJob) });
+      const parsed = await res.json();
+      setJobs([parsed, ...jobs]);
+    }
+    setPendingJobCheck(null);
+  };
+
+  const isJobApplied = (company, title) => {
+    if (!company || !title) return false;
+    return jobs.some(j => j.company.toLowerCase() === company.toLowerCase() && j.role.toLowerCase() === title.toLowerCase());
   };
 
   const addJob = async () => {
@@ -263,6 +276,29 @@ export default function Home() {
 
   return (
     <>
+      {pendingJobCheck && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          background: 'rgba(0,0,0,0.7)', zIndex: 9999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <div className="card" style={{width: '400px', maxWidth: '90%', textAlign: 'center'}}>
+            <div style={{fontSize: '40px', marginBottom: '10px'}}><FiCheckCircle style={{color: 'var(--green)'}} /></div>
+            <h2 style={{fontSize: '20px', marginBottom: '10px', color: 'var(--text)'}}>Did you apply successfully?</h2>
+            <p style={{color: 'var(--muted)', marginBottom: '20px', fontSize: '14px'}}>
+              You navigated to the application for <strong>{pendingJobCheck.title}</strong> at <strong>{pendingJobCheck.company}</strong>. Should we log this in your tracker?
+            </p>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center', marginTop: '20px'}}>
+              <button className="btn btn-primary" onClick={() => confirmApplication(true)} style={{width: '100%', padding: '12px', fontSize: '15px', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}>
+                <FiCheckCircle /> Applied
+              </button>
+              <button onClick={() => confirmApplication(false)} style={{background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '13px', padding: '4px'}}>
+                Skip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="sidebar">
         <div className="logo">Job Hunt <span>HQ</span><br/><small style={{fontSize:'10px',color:'var(--muted)',fontWeight:400}}>Komal's Command Center</small></div>
         <div className="nav-items">
@@ -379,7 +415,7 @@ export default function Home() {
           <div className="page active">
             <div className="page-header">
               <h1><FiRadio style={{display:'inline-block', verticalAlign:'middle', marginRight:'8px'}}/> Live Radar (Global)</h1>
-              <p>Fresh Frontend/React jobs posted recently. Click 'Apply + Track' to open the link AND save it to your Job Tracker instantly.</p>
+              <p>Fresh Frontend/React jobs posted recently. Click 'Apply' to open the link — we'll ask if you want to track it right after.</p>
             </div>
             
             <div style={{display: 'flex', gap: '10px', marginBottom: '20px', padding: '4px', background: 'var(--surf)', borderRadius: '12px', width: 'max-content'}}>
@@ -433,13 +469,23 @@ export default function Home() {
                         <span style={{display:'flex', alignItems:'center', gap:'4px'}}><FiSearch/> {j.source}</span>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => applyAndLog(j)} 
-                      className="btn btn-primary"
-                      style={{display:'flex', alignItems:'center', gap:'8px'}}
-                    >
-                      <FiSend /> Apply + Track
-                    </button>
+                    {isJobApplied(j.company, j.title) ? (
+                      <button 
+                        className="btn"
+                        style={{display:'flex', alignItems:'center', gap:'8px', background: 'var(--surf2)', color: 'var(--muted)', cursor: 'not-allowed', border:'none'}}
+                        disabled
+                      >
+                        <FiCheckCircle /> Applied
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleApplyClick(j)} 
+                        className="btn btn-primary"
+                        style={{display:'flex', alignItems:'center', gap:'8px'}}
+                      >
+                        <FiSend /> Apply
+                      </button>
+                    )}
                   </div>
                 ))}
               </div>
