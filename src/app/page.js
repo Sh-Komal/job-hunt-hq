@@ -229,6 +229,11 @@ function followUpStatus(dateStr) {
   return null;
 }
 
+function getTodayStr() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [aiInput, setAiInput] = useState('');
@@ -409,7 +414,7 @@ export default function Home() {
 
   const addJob = async () => {
     if(!jTitle || !jRole) return alert('Enter company and role');
-    const newJob = { company: jTitle, role: jRole, source: jSource, date: new Date().toISOString().split('T')[0] };
+    const newJob = { company: jTitle, role: jRole, source: jSource, date: getTodayStr() };
     const res = await fetch('/api/jobs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -436,7 +441,7 @@ export default function Home() {
 
   const addRecruiter = async () => {
     if(!rName || !rCompany) return;
-    const newR = { name: rName, company: rCompany, type: rType, date: new Date().toISOString().split('T')[0] };
+    const newR = { name: rName, company: rCompany, type: rType, date: getTodayStr() };
     const res = await fetch('/api/recruiters', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -626,7 +631,7 @@ export default function Home() {
           <div className="page active">
             <div className="page-header">
               <h1>Welcome, Komal 👋</h1>
-              <p>You've applied to {jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length} jobs today. Focus on consistency.</p>
+              <p>You've applied to {jobs.filter(j => j.date === getTodayStr()).length} jobs today. Focus on consistency.</p>
             </div>
 
             <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
@@ -654,7 +659,7 @@ export default function Home() {
                       <div className="card" style={{padding: '2rem 1.5rem', background: 'linear-gradient(135deg, var(--surf), var(--surf-light))', borderTop: '4px solid var(--secondary)', position: 'relative', overflow: 'hidden', marginBottom: 0}}>
                         <FiActivity style={{position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '100px', color: 'var(--secondary)', opacity: 0.05}}/>
                         <div className="card-title" style={{marginBottom: '0.75rem'}}>Today's Progress</div>
-                        <div style={{fontSize: '40px', fontWeight: 800, color: '#fff'}}>{jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length}</div>
+                        <div style={{fontSize: '40px', fontWeight: 800, color: '#fff'}}>{jobs.filter(j => j.date === getTodayStr()).length}</div>
                         <div style={{fontSize: '13px', color: 'var(--dim)', marginTop: '6px'}}>New applications sent today</div>
                       </div>
                     </div>
@@ -1017,8 +1022,9 @@ export default function Home() {
                   {Array.from({ length: getDaysInMonth(calDate.getMonth(), calDate.getFullYear()) }).map((_, i) => {
                       const day = i + 1;
                       const dObj = new Date(calDate.getFullYear(), calDate.getMonth(), day);
-                      const dStr = dObj.toISOString().split('T')[0];
-                      const today = new Date().toISOString().split('T')[0];
+                      const dStr = `${dObj.getFullYear()}-${String(dObj.getMonth() + 1).padStart(2, '0')}-${String(dObj.getDate()).padStart(2, '0')}`;
+                      const now = new Date();
+                      const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                       const isToday = dStr === today;
                       const isSelected = dStr === selectedTrackerDate;
                       const hasApplied = jobs.some(j => j.date === dStr);
@@ -1064,15 +1070,15 @@ export default function Home() {
                       <div style={{fontSize: '12px', fontWeight: 700, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px'}}>Daily Activity Target</div>
                       <div style={{fontSize: '24px', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center'}}>
                         <span style={{color: 'var(--danger)', marginRight: '10px', textShadow: '0 0 10px rgba(239, 68, 68, 0.4)'}}>❤</span>
-                        {jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length} / 5 Applied
+                        {jobs.filter(j => j.date === getTodayStr()).length} / 5 Applied
                       </div>
                     </div>
                     <div style={{fontSize: '13px', fontWeight: 600, color: 'var(--dim)', background: 'var(--surf)', padding: '6px 12px', borderRadius: '8px', border: '1px solid var(--border)'}}>
-                      {Math.max(0, 5 - jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length)} to next heart
+                      {Math.max(0, 5 - jobs.filter(j => j.date === getTodayStr()).length)} to next heart
                     </div>
                   </div>
                   <div style={{height: '14px', background: 'var(--surf2)', borderRadius: '7px', overflow: 'hidden', border: '1px solid var(--border)'}}>
-                    <div style={{height: '100%', width: `${Math.min(100, (jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length / 5) * 100)}%`, background: 'var(--danger)', borderRadius: '7px', transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)'}}></div>
+                    <div style={{height: '100%', width: `${Math.min(100, (jobs.filter(j => j.date === getTodayStr()).length / 5) * 100)}%`, background: 'var(--danger)', borderRadius: '7px', transition: 'width 0.5s cubic-bezier(0.4, 0, 0.2, 1)'}}></div>
                   </div>
                   <div style={{fontSize: '11px', color: 'var(--warning)', marginTop: '14px', display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600}}>
                     <FiZap style={{fontSize: '14px'}}/> Apply to at least 5 jobs today to maintain your hot streak!
