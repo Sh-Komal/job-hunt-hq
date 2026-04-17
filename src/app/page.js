@@ -563,11 +563,11 @@ export default function Home() {
           
           <div className="nav-label">Archive</div>
           <NavItem id="messages" icon={<FiMessageSquare/>} label="Templates" />
-          <NavItem id="gap" icon={<FiShield/>} label="Gap Answers" />
+          <NavItem id="gap" icon={<FiShield/>} label="Gap Handling" />
         </div>
         
         <div style={{padding: '1.5rem', borderTop: '1px solid var(--border)'}}>
-           <div className="nav-label" style={{padding: '0 0 10px 0'}}>Link Vault</div>
+           <div className="nav-label" style={{padding: '0 0 10px 0'}}>Quick Links</div>
            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '6px'}}>
               {[
                 {k: 'resume', label: 'CV / RS', icon: '📄'},
@@ -647,15 +647,15 @@ export default function Home() {
                     <div style={{display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '1.5rem'}}>
                       <div className="card" style={{padding: '2rem 1.5rem', background: 'linear-gradient(135deg, var(--surf), var(--surf-light))', borderTop: '4px solid var(--primary)', position: 'relative', overflow: 'hidden', marginBottom: 0}}>
                         <FiLayers style={{position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '100px', color: 'var(--primary)', opacity: 0.05}}/>
-                        <div className="card-title" style={{marginBottom: '0.75rem'}}>Total Arsenal</div>
+                        <div className="card-title" style={{marginBottom: '0.75rem'}}>Total Applications</div>
                         <div style={{fontSize: '40px', fontWeight: 800, color: '#fff'}}>{jobs.length}</div>
                         <div style={{fontSize: '13px', color: 'var(--dim)', marginTop: '6px'}}>Lifetime applications tracked</div>
                       </div>
                       <div className="card" style={{padding: '2rem 1.5rem', background: 'linear-gradient(135deg, var(--surf), var(--surf-light))', borderTop: '4px solid var(--secondary)', position: 'relative', overflow: 'hidden', marginBottom: 0}}>
                         <FiActivity style={{position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '100px', color: 'var(--secondary)', opacity: 0.05}}/>
-                        <div className="card-title" style={{marginBottom: '0.75rem'}}>Daily Velocity</div>
+                        <div className="card-title" style={{marginBottom: '0.75rem'}}>Today's Progress</div>
                         <div style={{fontSize: '40px', fontWeight: 800, color: '#fff'}}>{jobs.filter(j => j.date === new Date().toISOString().split('T')[0]).length}</div>
-                        <div style={{fontSize: '13px', color: 'var(--dim)', marginTop: '6px'}}>Applications fired today</div>
+                        <div style={{fontSize: '13px', color: 'var(--dim)', marginTop: '6px'}}>New applications sent today</div>
                       </div>
                     </div>
 
@@ -682,7 +682,7 @@ export default function Home() {
                           </div>
                         )}
                         <button onClick={() => setActiveTab('mock')} className="btn btn-primary" style={{padding: '12px 20px', borderRadius: '12px', fontSize: '13px'}}>
-                          Launch Practice Engine
+                          Start Mock Interview
                         </button>
                       </div>
                     </div>
@@ -694,7 +694,7 @@ export default function Home() {
               <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', alignItems: 'start'}}>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '1.5rem'}}>
                   <div className="card" style={{marginBottom: 0}}>
-                    <div className="card-title"><FiPieChart/> Conversion Pipeline</div>
+                    <div className="card-title"><FiPieChart/> Application Status</div>
                     <div style={{display: 'flex', gap: '4px', height: '10px', borderRadius: '5px', overflow: 'hidden', marginBottom: '1.5rem', background: 'var(--surf-light)'}}>
                       <div style={{width: `${Math.max((jobs.length / Math.max(jobs.length, 1)) * 100, 5)}%`, background: 'var(--secondary)'}}></div>
                       <div style={{width: `${Math.max((jobs.filter(j=>['Screening','Interview','Offer'].includes(j.status)).length / Math.max(jobs.length, 1)) * 100, 5)}%`, background: 'var(--warning)'}}></div>
@@ -722,7 +722,7 @@ export default function Home() {
                 </div>
 
                 <div className="card" style={{marginBottom: 0, height: '100%'}}>
-                  <div className="card-title"><FiTarget/> Daily Heart Target</div>
+                  <div className="card-title"><FiTarget/> Your Daily Goal</div>
                   <div style={{display: 'flex', flexDirection: 'column', gap: '14px'}}>
                     {[
                       { l: 'Master 3 DSA problems', d: 'Focus on Arrays/Hashing', done: false },
@@ -744,7 +744,7 @@ export default function Home() {
                 </div>
 
                 <div className="card" style={{marginBottom: 0, height: '100%'}}>
-                  <div className="card-title"><FiRadio/> Follow-up Radar</div>
+                  <div className="card-title"><FiRadio/> Follow-up Reminders</div>
                   <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
                     {jobs.filter(j => (daysSince(j.date) === 3 || daysSince(j.date) === 7) && j.status === 'Applied').length > 0 ? (
                       jobs.filter(j => (daysSince(j.date) === 3 || daysSince(j.date) === 7) && j.status === 'Applied').slice(0, 5).map(j => (
@@ -1198,8 +1198,8 @@ export default function Home() {
         {activeTab === 'prep' && (
           <div className="page active">
             <div className="page-header">
-              <h1><FiShield style={{color: 'var(--warning)'}}/> Mastery Modules</h1>
-              <p>Tailored scripts and structural answers for 2.4+ years React experience.</p>
+              <h1><FiShield style={{color: 'var(--warning)'}}/> Interview Prep</h1>
+              <p>Top-rated scripts and structural answers for React & MERN stack interviews.</p>
             </div>
 
             <div className="neet-layout">
