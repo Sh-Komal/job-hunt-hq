@@ -56,6 +56,13 @@ h1, h2, h3, .logo { font-family: 'Outfit', sans-serif; }
 .sidebar::-webkit-scrollbar {
   display: none; /* Chrome, Webkit */
 }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 
 .logo {
   padding: 2rem 1.5rem;
@@ -558,3 +565,8 @@ input::placeholder {
   margin-top: 8px;
 }
 .legend-box { width: 8px; height: 8px; border-radius: 1px; }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(0.98); }
+}
