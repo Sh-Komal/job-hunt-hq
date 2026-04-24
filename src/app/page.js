@@ -261,6 +261,9 @@ export default function Home() {
   const [jRole, setJRole] = useState('Frontend Developer');
   const [jSource, setJSource] = useState('LinkedIn');
   
+  const [editJobId, setEditJobId] = useState(null);
+  const [editJobCompany, setEditJobCompany] = useState('');
+  
   const [rName, setRName] = useState('');
   const [rCompany, setRCompany] = useState('');
   const [rType, setRType] = useState('Recruiter');
@@ -439,6 +442,17 @@ export default function Home() {
     await fetch(`/api/jobs/${id}`, { method: 'DELETE' });
   };
 
+  const updateJobCompany = async (id) => {
+    if(!editJobCompany.trim()) return;
+    setJobs(jobs.map(j => j._id === id ? { ...j, company: editJobCompany } : j));
+    setEditJobId(null);
+    await fetch(`/api/jobs/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ company: editJobCompany })
+    });
+  };
+
   const addRecruiter = async () => {
     if(!rName || !rCompany) return;
     const newR = { name: rName, company: rCompany, type: rType, date: getTodayStr() };
@@ -501,6 +515,13 @@ export default function Home() {
   const copyMsg = (txt) => {
     navigator.clipboard.writeText(txt);
   };
+
+  const filteredTrackerJobs = jobs.filter(j => {
+    const matchesSearch = j.company.toLowerCase().includes(jobSearchQuery.toLowerCase()) || j.status.toLowerCase().includes(jobSearchQuery.toLowerCase());
+    const matchesDate = !selectedTrackerDate || j.date === selectedTrackerDate;
+    if (jobSearchQuery.trim() !== '') return matchesSearch;
+    return matchesDate && matchesSearch;
+  });
 
   const filteredCompanies = companies.filter(c => 
     c.name.toLowerCase().includes(coSearch.toLowerCase()) || 
@@ -945,28 +966,37 @@ export default function Home() {
                         <th>Role</th>
                         <th>Source</th>
                         <th>Status</th>
+                        <th style={{textAlign: 'right'}}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {jobs
-                        .filter(j => (!selectedTrackerDate || j.date === selectedTrackerDate) && 
-                                    (j.company.toLowerCase().includes(jobSearchQuery.toLowerCase()) || 
-                                     j.status.toLowerCase().includes(jobSearchQuery.toLowerCase())))
-                        .length === 0 ? (
+                      {filteredTrackerJobs.length === 0 ? (
                         <tr>
-                          <td colSpan="5" style={{textAlign: 'center', padding: '40px', color: 'var(--muted)'}}>
-                            No applications found for this date. Go apply or pick another date!
+                          <td colSpan="6" style={{textAlign: 'center', padding: '40px', color: 'var(--muted)'}}>
+                            {jobSearchQuery ? "No matching applications found." : "No applications found for this date. Go apply or pick another date!"}
                           </td>
                         </tr>
                       ) : (
-                        jobs
-                          .filter(j => (!selectedTrackerDate || j.date === selectedTrackerDate) && 
-                                      (j.company.toLowerCase().includes(jobSearchQuery.toLowerCase()) || 
-                                       j.status.toLowerCase().includes(jobSearchQuery.toLowerCase())))
-                          .map((j, i) => (
+                        filteredTrackerJobs.map((j, i) => (
                           <tr key={j._id}>
                             <td style={{color: 'var(--muted)', fontSize: '12px'}}>{i + 1}</td>
-                            <td style={{fontWeight: 600}}>{j.company}</td>
+                            <td style={{fontWeight: 600}}>
+                              {editJobId === j._id ? (
+                                <input 
+                                  value={editJobCompany} 
+                                  onChange={(e) => setEditJobCompany(e.target.value)}
+                                  style={{
+                                    background: 'var(--surf)', border: '1px solid var(--primary)', 
+                                    color: 'var(--text)', padding: '4px 8px', borderRadius: '4px',
+                                    outline: 'none', fontSize: '14px', width: '100%'
+                                  }}
+                                  autoFocus
+                                  onKeyDown={(e) => e.key === 'Enter' && updateJobCompany(j._id)}
+                                />
+                              ) : (
+                                j.company
+                              )}
+                            </td>
                             <td style={{color: 'var(--muted)'}}>{j.role}</td>
                             <td><span style={{fontSize: '11px', background: 'var(--surf2)', padding: '2px 6px', borderRadius: '4px'}}>{j.source}</span></td>
                             <td>
@@ -977,6 +1007,19 @@ export default function Home() {
                               >
                                 {['Applied', 'Screening', 'Interview', 'Rejected', 'Offer', 'Ghosted'].map(s => <option key={s} value={s} style={{background: 'var(--surf)'}}>{s}</option>)}
                               </select>
+                            </td>
+                            <td style={{textAlign: 'right'}}>
+                              {editJobId === j._id ? (
+                                <div style={{display: 'flex', justifyContent: 'flex-end', gap: '6px'}}>
+                                  <button onClick={() => updateJobCompany(j._id)} style={{background: 'var(--success)', border: 'none', color: '#fff', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold'}} title="Save">Save</button>
+                                  <button onClick={() => setEditJobId(null)} style={{background: 'var(--surf2)', border: 'none', color: 'var(--text)', cursor: 'pointer', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold'}} title="Cancel">Cancel</button>
+                                </div>
+                              ) : (
+                                <div style={{display: 'flex', justifyContent: 'flex-end', gap: '8px'}}>
+                                  <button onClick={() => { setEditJobId(j._id); setEditJobCompany(j.company); }} style={{background: 'none', border: 'none', color: 'var(--dim)', cursor: 'pointer', padding: '2px'}} title="Edit"><FiEdit2 size={14}/></button>
+                                  <button onClick={() => deleteJob(j._id)} style={{background: 'none', border: 'none', color: 'var(--danger)', cursor: 'pointer', padding: '2px'}} title="Delete"><FiTrash2 size={14}/></button>
+                                </div>
+                              )}
                             </td>
                           </tr>
                         ))
