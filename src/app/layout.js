@@ -2,8 +2,8 @@ import "./globals.css";
 import AuthProvider from './components/AuthProvider';
 
 export const metadata = {
-  title: "Job Hunt HQ",
-  description: "AI-powered Job Tracker & Dashboard",
+  title: "CareerPilot — Smart Job Application Tracker",
+  description: "Track applications, manage recruiter outreach, and accelerate your job search with AI-powered insights.",
 };
 
 export default function RootLayout({ children }) {

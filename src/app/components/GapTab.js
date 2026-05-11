@@ -14,7 +14,7 @@ export default function GapTab() {
         <div className="neet-main-col">
           <div className="card">
             <div className="card-title">Verbal Mastery</div>
-            <div className="msg-content" style={{ borderLeftColor: 'var(--amber)', color: '#fff', fontStyle: 'italic' }}>
+            <div className="msg-content" style={{ borderLeft: '4px solid var(--warning)', background: 'linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.03))', color: 'var(--text)', fontStyle: 'italic', fontWeight: 500 }}>
               "Ended in Jan. Since then, intentionally upskilling. Built a high-performance career command center. Ready to contribute."
             </div>
             {[

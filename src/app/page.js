@@ -71,7 +71,7 @@ export default function Home() {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="logo">
-          <div>Job Hunt <span>HQ</span></div>
+          <div>Career<span>Pilot</span></div>
         </div>
 
         <div className="nav-section">

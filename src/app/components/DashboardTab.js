@@ -1,6 +1,7 @@
 'use client';
 
 import { FiPieChart, FiLayers, FiActivity, FiTarget, FiZap, FiCheckCircle, FiRadio } from 'react-icons/fi';
+import { useSession } from 'next-auth/react';
 
 
 function getTodayStr() {
@@ -14,13 +15,14 @@ function daysSince(dateStr) {
 }
 
 export default function DashboardTab({ jobs, setActiveTab }) {
-
+  const { data: session } = useSession();
+  const firstName = session?.user?.name?.split(' ')[0] || 'there';
 
   return (
     <div className="page active">
       <div className="page-header">
-        <h1>Welcome, Komal 👋</h1>
-        <p>You've applied to {jobs.filter(j => j.date === getTodayStr()).length} jobs today. Focus on consistency.</p>
+        <h1>Welcome, {firstName} 👋</h1>
+        <p>You've tracked {jobs.filter(j => j.date === getTodayStr()).length} applications today. Stay consistent, results will follow.</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -29,13 +31,13 @@ export default function DashboardTab({ jobs, setActiveTab }) {
           <div className="card" style={{ padding: '2rem 1.5rem', background: 'linear-gradient(135deg, var(--surf), var(--surf-light))', borderTop: '4px solid var(--primary)', position: 'relative', overflow: 'hidden', marginBottom: 0 }}>
             <FiLayers style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '100px', color: 'var(--primary)', opacity: 0.05 }} />
             <div className="card-title" style={{ marginBottom: '0.75rem' }}>Total Applications</div>
-            <div style={{ fontSize: '40px', fontWeight: 800, color: '#fff' }}>{jobs.length}</div>
+            <div style={{ fontSize: '40px', fontWeight: 800, color: 'var(--text)' }}>{jobs.length}</div>
             <div style={{ fontSize: '13px', color: 'var(--dim)', marginTop: '6px' }}>Lifetime applications tracked</div>
           </div>
           <div className="card" style={{ padding: '2rem 1.5rem', background: 'linear-gradient(135deg, var(--surf), var(--surf-light))', borderTop: '4px solid var(--secondary)', position: 'relative', overflow: 'hidden', marginBottom: 0 }}>
             <FiActivity style={{ position: 'absolute', right: '-10px', bottom: '-10px', fontSize: '100px', color: 'var(--secondary)', opacity: 0.05 }} />
             <div className="card-title" style={{ marginBottom: '0.75rem' }}>Today's Progress</div>
-            <div style={{ fontSize: '40px', fontWeight: 800, color: '#fff' }}>{jobs.filter(j => j.date === getTodayStr()).length}</div>
+            <div style={{ fontSize: '40px', fontWeight: 800, color: 'var(--text)' }}>{jobs.filter(j => j.date === getTodayStr()).length}</div>
             <div style={{ fontSize: '13px', color: 'var(--dim)', marginTop: '6px' }}>New applications sent today</div>
           </div>
         </div>
@@ -85,7 +87,7 @@ export default function DashboardTab({ jobs, setActiveTab }) {
               ].map((obj, i) => (
                 <div key={i} style={{ padding: '12px', background: 'var(--surf-light)', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
                   <div style={{ width: '20px', height: '20px', borderRadius: '5px', border: '2px solid var(--border)', background: obj.done ? 'var(--primary)' : 'transparent', flexShrink: 0 }} className="flex-center">
-                    {obj.done && <FiCheckCircle style={{ fontSize: '12px', color: 'var(--bg)' }} />}
+                    {obj.done && <FiCheckCircle style={{ fontSize: '12px', color: '#fff' }} />}
                   </div>
                   <div>
                     <div style={{ fontSize: '14px', fontWeight: 600, color: obj.done ? 'var(--dim)' : 'var(--text)', marginBottom: '2px' }}>{obj.l}</div>
@@ -104,7 +106,7 @@ export default function DashboardTab({ jobs, setActiveTab }) {
                 jobs.filter(j => (daysSince(j.date) === 3 || daysSince(j.date) === 7) && j.status === 'Applied').slice(0, 5).map(j => (
                   <div key={j._id} style={{ padding: '14px', background: 'var(--primary-soft)', border: '1px solid var(--primary)', borderRadius: '12px', fontSize: '13px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <strong>{j.company}</strong>
-                    <span style={{ fontSize: '11px', background: 'var(--primary)', color: 'var(--bg)', padding: '2px 8px', borderRadius: '99px', fontWeight: 'bold' }}>Day {daysSince(j.date)}</span>
+                    <span style={{ fontSize: '11px', background: 'var(--primary)', color: '#fff', padding: '2px 8px', borderRadius: '99px', fontWeight: 'bold' }}>Day {daysSince(j.date)}</span>
                   </div>
                 ))
               ) : (

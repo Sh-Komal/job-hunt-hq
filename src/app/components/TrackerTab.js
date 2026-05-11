@@ -265,7 +265,7 @@ export default function TrackerTab({ jobs, setJobs }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '1rem' }}>
               <div>
                 <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Daily Activity Target</div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center' }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text)', display: 'flex', alignItems: 'center' }}>
                   <span style={{ color: 'var(--danger)', marginRight: '10px', textShadow: '0 0 10px rgba(239, 68, 68, 0.4)' }}>❤</span>
                   {jobs.filter(j => j.date === getTodayStr()).length} / 5 Applied
                 </div>

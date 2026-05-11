@@ -68,7 +68,7 @@ export default function CompaniesTab() {
           <FiRadio style={{ color: 'var(--primary)', fontSize: '20px' }} />
         </div>
         <div>
-          <div style={{ fontSize: '16px', fontWeight: 800, color: '#fff', marginBottom: '6px' }}>Execution Strategy</div>
+          <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text)', marginBottom: '6px' }}>Execution Strategy</div>
           <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: '1.6' }}>
             Standard applications fail. Find 3 recruiters from these companies and send them a <strong>LinkedIn Voice Note</strong>. 90% of candidates just click 'Apply' and hope. Be the 10%.
           </div>
