@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const JobSchema = new mongoose.Schema({
+  userId: { type: String, required: true, index: true },
   company: { type: String, required: true },
   role: { type: String, required: true },
   source: { type: String },

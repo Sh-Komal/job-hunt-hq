@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const RecordingSchema = new mongoose.Schema({
+  userId: { type: String, required: true, index: true },
   name: { type: String, required: true },
   audioData: { type: String, required: true }, // base64 encoded audio
   mimeType: { type: String, default: 'audio/webm' },

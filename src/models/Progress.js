@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const ProgressSchema = new mongoose.Schema({
-  userId: { type: String, default: 'komal' },
+  userId: { type: String, required: true, unique: true, index: true },
   dsaDone: { type: mongoose.Schema.Types.Mixed, default: {} },
   prepDone: { type: mongoose.Schema.Types.Mixed, default: {} },
   prepNotes: { type: mongoose.Schema.Types.Mixed, default: {} },

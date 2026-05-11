@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const RecruiterSchema = new mongoose.Schema({
+  userId: { type: String, required: true, index: true },
   name: { type: String, required: true },
   company: { type: String, required: true },
   type: { type: String },
